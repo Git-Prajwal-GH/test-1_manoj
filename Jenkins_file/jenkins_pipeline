@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Git checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/ManojKRISHNAPPA/test-1.git'
+                git branch: 'main', url: 'https://github.com/Git-Prajwal-GH/test-1_manoj.git'
             }
         }
 
@@ -28,29 +28,29 @@ pipeline {
         stage('codescan') {
             steps {
                 withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-                    sh "mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=http://54.160.245.21:9000/"
+                    sh "mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=http://  :9000/"
                 }
             }
         }
 
         stage('Build and tag') {
             steps {
-                sh "docker build -t manojkrishnappa/webapp:1 ."
+                sh "docker build -t prajwal/webapp:1 ."
             }
         }
 
         stage('Docker image scan') {
             steps {
-                sh "trivy image --format table -o trivy-image-report.html manojkrishnappa/webapp:1"
+                sh "trivy image --format table -o trivy-image-report.html prajwal/webapp:1"
             }
         }
 
         stage('Containersation') {
             steps {
                 sh '''
-                    docker stop c3 || true
-                    docker rm c3 || true
-                    docker run -it -d --name c3 -p 9004:8080 manojkrishnappa/webapp:1
+                    docker stop c1 || true
+                    docker rm c1 || true
+                    docker run -it -d --name c1 -p 9004:8080 prajwal/webapp:1
                 '''
             }
         }
