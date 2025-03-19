@@ -48,9 +48,9 @@ pipeline {
         stage('Containerzation') {
             steps {
                 sh '''
-                    docker stop c1 || true
-                    docker rm c1 || true
-                    docker run -it -d --name c1 -p 9004:8080 prajwal/webapp:1
+                    docker stop c7 || true
+                    docker rm c7 || true
+                    docker run -it -d --name c7 -p 9007:8080 prajwal/webapp:1
                 '''
             }
         }
