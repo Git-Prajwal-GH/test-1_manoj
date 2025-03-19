@@ -39,13 +39,13 @@ pipeline {
             }
         }
 
-        stage('Docker image scan') {
+        stage('Docker image scan(Trivy)') {
             steps {
                 sh "trivy image --format table -o trivy-image-report.html prajwal/webapp:1"
             }
         }
 
-        stage('Containersation') {
+        stage('Containerzation') {
             steps {
                 sh '''
                     docker stop c1 || true
