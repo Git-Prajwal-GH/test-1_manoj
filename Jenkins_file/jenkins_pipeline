@@ -50,7 +50,7 @@ pipeline {
                 sh '''
                     docker stop c7 || true
                     docker rm c7 || true
-                    docker run -it -d --name c7 -p 9007:8080 prajwal/webapp:1
+                    docker run -it -d --name c7 -p 9007:8080 prajwalgh/webapp:1
                 '''
             }
         }
