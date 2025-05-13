@@ -1,0 +1,80 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'java-11'
+        maven 'maven'
+    }
+
+    environment {
+        IMAGE_NAME = "prajwalgh/webapp:newone"
+    }
+
+    stages {
+        stage('Git Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Git-Prajwal-GH/test-1_manoj.git'
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh 'mvn compile'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Code Scan (SonarQube)') {
+            steps {
+                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.login=$SONAR_AUTH_TOKEN \
+                        -Dsonar.host.url=http://34.235.124.135:9000/
+                    """
+                }
+            }
+        }
+
+        stage('Build and Tag Docker Image') {
+            steps {
+                sh "docker build -t $IMAGE_NAME ."
+            }
+        }
+
+        stage('Docker Image Scan (Trivy)') {
+            steps {
+                sh "trivy image --format table -o trivy-image-report.html $IMAGE_NAME"
+            }
+        }
+
+        stage('Containerization') {
+            steps {
+                sh '''
+                    docker stop project1 || true
+                    docker rm project1 || true
+                    docker run -d --name project1 -p 9090:8080 $IMAGE_NAME
+                '''
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Docker Image to Repository') {
+            steps {
+                sh 'docker push $IMAGE_NAME'
+            }
+        }
+    }
+}
